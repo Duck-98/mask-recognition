@@ -6,9 +6,9 @@ import imutils
 import numpy as np
 import cv2
 
-
 print("[얼굴 인식 모델 로딩]")
-net = cv2.dnn.readNet('models/deploy.prototxt', 'models/res10_300x300_ssd_iter_140000.caffemodel')
+net = cv2.dnn.readNet('models/deploy.prototxt',
+                      'models/res10_300x300_ssd_iter_140000.caffemodel')
 #model = load_model('models/mask_detector.model')
 print("[마스크 인식 모델 로딩]")
 model = load_model('mask_detector.h5')
@@ -19,13 +19,17 @@ cap = cv2.VideoCapture(0)
 #out = cv2.VideoWriter('output.mp4', fourcc, cap.get(cv2.CAP_PROP_FPS), (img.shape[1], img.shape[0]))
 #net = cv2.dnn.readNet(model, config)
 
+
 def Mask_dect(img, net, model):
     h, w = img.shape[:2]
 
-    blob = cv2.dnn.blobFromImage(img, scalefactor=1., size=(300, 300), mean=(104., 177., 123.))
+    blob = cv2.dnn.blobFromImage(img,
+                                 scalefactor=1.,
+                                 size=(300, 300),
+                                 mean=(104., 177., 123.))
     net.setInput(blob)
     dets = net.forward()
-    
+
     result_img = img.copy()
     faces = []
     locations = []
@@ -47,7 +51,7 @@ def Mask_dect(img, net, model):
         face_in = cv2.cvtColor(face_in, cv2.COLOR_BGR2RGB)
         face_in = img_to_array(face_in)
         face_in = preprocess_input(face_in)
-            
+
         faces.append(face_in)
         locations.append((x1, y1, x2, y2))
 
@@ -56,6 +60,7 @@ def Mask_dect(img, net, model):
         predicts = model.predict(face_result, batch_size=32)
 
     return (locations, predicts)
+
 
 fps = FPS().start()
 
@@ -83,7 +88,13 @@ while cap.isOpened():
 
         label = "{}: {: .2f}%".format(label, max(mask, nomask) * 100)
 
-        cv2.putText(img, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.80, color, 2, lineType=cv2.LINE_AA)
+        cv2.putText(img,
+                    label, (x1, y1 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.80,
+                    color,
+                    2,
+                    lineType=cv2.LINE_AA)
         cv2.rectangle(img, (x1, y1), (x2, y2), color, 2, lineType=cv2.LINE_AA)
 
     cv2.imshow("Mask_img", img)
@@ -96,7 +107,6 @@ print("[재생 시간 : {:.2f}초]".format(fps.elapsed()))
 print("[FPS : {:.2f}]".format(fps.fps()))
 
 cap.release()
-
 
 #     h, w = img.shape[:2]
 
@@ -115,14 +125,14 @@ cap.release()
 #         y1 = int(dets[0, 0, i, 4] * h)
 #         x2 = int(dets[0, 0, i, 5] * w)
 #         y2 = int(dets[0, 0, i, 6] * h)
-        
+
 #         face = img[y1:y2, x1:x2]
 
 #         face_input = cv2.resize(face, dsize=(224, 224))
 #         face_input = cv2.cvtColor(face_input, cv2.COLOR_BGR2RGB)
 #         face_input = preprocess_input(face_input)
 #         face_input = np.expand_dims(face_input, axis=0)
-        
+
 #         mask, nomask = model.predict(face_input).squeeze()
 
 #         if mask > nomask:
